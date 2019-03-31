@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>Firetash | Bookings</title>
+
+  <!-- Custom fonts for this template-->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet" type="text/css">
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!-- Custom styles for this template-->
+  <link href="css/sb-admin-2.min.css" type="text/css" rel="stylesheet">
+</head>
+
+<body id="page-top">
+
+  <!-- Page Wrapper -->
+  <div id="wrapper">
+
+    <!-- Sidebar -->
+    <ul class="navbar-nav bg-gradient-danger sidebar sidebar-dark accordion" id="accordionSidebar">
+
+      <!-- Sidebar - Brand -->
+      <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+        <div class="sidebar-brand-icon rotate-n-15">
+          <i class="fas fa-laugh-wink"></i>
+        </div>
+        <div class="sidebar-brand-text mx-3"><b>Firetash Booking</b></div>
+      </a>
+
+      <!-- Divider -->
+      <hr class="sidebar-divider my-0">
+
+      <!-- Nav Item - Dashboard -->
+      <li class="nav-item active">
+        <a class="nav-link" href="http://localhost:3000/admin">
+          <i class="fas fa-fw fa-tachometer-alt"></i>
+          <span>Dashboard</span></a>
+      </li>
+    </ul>
+    <!-- End of Sidebar -->
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+      <!-- Main Content -->
+      <div id="content">
+
+        <!-- Topbar -->
+        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+                Firetash Ticket Bookings - An easy way to book your match tickets.
+        </nav>
+        <!-- End of Topbar -->
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid">
+
+          <!-- Page Heading -->
+          <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800">Booking Portal</h1>
+          </div>
+
+          <!-- Content Row -->
+          <div class="row" >
+                        <div id="forms" class="col-xl-12">
+                            
+                            <input style="margin-bottom: 4px" type="text" id="name" class="form-control" placeholder="Enter your name" required="true">
+                            <input style="margin-bottom: 4px" type="text" id="age" class="form-control" placeholder="Age" required> 
+                            <input  style="margin-bottom: 4px" type="text" id="nop" class="form-control" placeholder="Number of people"required>
+                            <select  style="margin-bottom: 4px" class="form-control" id="seat">
+                                <option value="1"> Classic seats </option>
+                                <option value="2"> Premium seats </option>
+                                <option value="3"> VIP seats </option>
+                            </select>
+                            <input style="margin-top: 4px"type="button" id="book" class="btn btn-danger" value="Book Tickets"> 
+                        </div>
+            </div>
+          
+        
+        <!-- Content Row -->
+          <div class="row">
+
+            <!-- Content Column -->
+            <div>
+              <!-- Color System -->
+              <div class="row" style="margin-top:10px">
+                
+               
+        <!-- /.container-fluid -->
+
+      </div>
+      <!-- End of Main Content -->
+      </div>
+      
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+  </div>
+  <!-- End of Page Wrapper -->
+
+  <!-- Scroll to Top Button-->
+  <a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+  </a>
+
+
+  <!-- Bootstrap core JavaScript-->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Core plugin JavaScript-->
+  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <!-- Custom scripts for all pages-->
+  <script src="js/sb-admin-2.min.js"></script>
+
+  <!-- Page level plugins -->
+  <script src="vendor/chart.js/Chart.min.js"></script>
+
+  <!-- Page level custom scripts -->
+  <script src="js/demo/chart-area-demo.js"></script>
+  <script src="js/demo/chart-pie-demo.js"></script>
+
+</body>
+
+<script>
+        $(function(){
+            var socket = io.connect();
+            
+            var forms = $('#forms')
+
+            $('#book').click(function(){
+        
+            console.log("Reached !!!!");
+                
+
+            socket.emit('booking placed', {
+                    seat: $('#seat').val(),
+                    nop: $('#nop').val(), 
+                    name:$('#name').val(),
+                    age:$('#age').val()}); 
+            })
+            
+            socket.on('confirmation', function(data){
+                console.log("AGEEE"+data.age);
+                // Age Validation
+                if(data.age < 18){
+                    forms.append(`<div id="notify" class="alert alert-danger"> ${data.name} your age is below from what required </div>`);
+                    setTimeout(() => {
+                        $('#notify').remove();
+                    }, 3000); 
+                    return 
+                }else{
+
+                    // Send report to dashboard
+                    socket.emit('send report', data); 
+
+                    forms.append(`<div id="notify" class="alert alert-success"> ${data.name} your booking is confirmed! </div>`);
+                    $('#name').val('');
+                    $('#nop').val('');
+                    $('#age').val(''); 
+                    // Remove notification after 3 seconds. 
+                    
+                }
+            })
+        
+        });
+    </script>
+
+</html>

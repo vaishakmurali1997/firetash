@@ -1,0 +1,15 @@
+{
+  "name": "mis.io",
+  "version": "1.0.0",
+  "description": "management information system",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "vaishak murali",
+  "license": "ISC",
+  "dependencies": {
+    "socket.io": "*",
+    "express": "*"
+  }
+}
